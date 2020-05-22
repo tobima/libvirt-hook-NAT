@@ -22,5 +22,5 @@ This project is licensed under the GPL v3.0 - see the [LICENSE](LICENSE) file fo
 
 ## Acknowledgments
 
-* The basic function of hooks for libvirt is documented on the [libvirt webpage] (https://www.libvirt.org/hooks.html)
-* The idea for this script is based on an entry in the [libvirt-wiki] (https://wiki.libvirt.org/page/Networking#Forwarding_Incoming_Connections)
+* The basic function of hooks for libvirt is documented on the [libvirt webpage](https://www.libvirt.org/hooks.html)
+* The idea for this script is based on an entry in the [libvirt-wiki](https://wiki.libvirt.org/page/Networking#Forwarding_Incoming_Connections)
