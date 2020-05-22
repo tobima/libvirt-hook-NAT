@@ -1,0 +1,22 @@
+{
+	"iface-WAN":"ens0p31f6",
+	"ip-WAN":"123.123.123.123",
+	"net-LAN":"192.168.122.0/24",
+ 	"forward-rules": [
+	{
+		"vm-name": "web",
+                "ip": "192.168.122.103",
+		"port-mappings": [
+			{
+				"source-port": "2222",
+				"destination-port": "22"
+			},
+			{
+				"source-port": "80"
+			},
+			{
+				"source-port": "443"
+			}
+		]
+	}]
+}
