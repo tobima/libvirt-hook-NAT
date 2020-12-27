@@ -11,24 +11,25 @@ if [ $? -eq 0 ]; then
 	for mapping in $(echo "${rules}" | jq -c '."port-mappings"[]'); do
 		GUEST_PORT=$(echo "${mapping}" | jq -r '."destination-port"')
 		HOST_PORT=$(echo "${mapping}" | jq -r '."source-port"')
+		PROTOCOL=$(echo "${mapping}" | jq -r '."protocol"' | sed -e 's/null/tcp/')
 		if  [ "${2}" = "stopped" ] || [ "${2}" = "reconnect" ]; then
 			if [ "${GUEST_PORT}x" != "nullx" ]; then
-				/sbin/iptables -D FORWARD -o virbr0 -d $GUEST_IP -p tcp --dport $GUEST_PORT -j ACCEPT
-				/sbin/iptables -t nat -D PREROUTING -p tcp -d $EXTIP --dport $HOST_PORT -j DNAT --to $GUEST_IP:$GUEST_PORT
+				/sbin/iptables -D FORWARD -o virbr0 -d ${GUEST_IP} -p ${PROTOCOL} --dport ${GUEST_PORT} -j ACCEPT
+				/sbin/iptables -t nat -D PREROUTING -p ${PROTOCOL} -d ${EXTIP} --dport ${HOST_PORT} -j DNAT --to ${GUEST_IP}:${GUEST_PORT}
 			else
-				/sbin/iptables -D FORWARD -o virbr0 -d $GUEST_IP -p tcp --dport $HOST_PORT -j ACCEPT
-				/sbin/iptables -t nat -D PREROUTING -p tcp -d $EXTIP --dport $HOST_PORT -j DNAT --to $GUEST_IP
-				/sbin/iptables -t nat -D POSTROUTING -s $INT_NET -d $GUEST_IP -p tcp --dport $HOST_PORT -j MASQUERADE
+				/sbin/iptables -D FORWARD -o virbr0 -d ${GUEST_IP} -p ${PROTOCOL} --dport ${HOST_PORT} -j ACCEPT
+				/sbin/iptables -t nat -D PREROUTING -p ${PROTOCOL} -d ${EXTIP} --dport ${HOST_PORT} -j DNAT --to ${GUEST_IP}
+				/sbin/iptables -t nat -D POSTROUTING -s ${INT_NET} -d ${GUEST_IP} -p ${PROTOCOL} --dport ${HOST_PORT} -j MASQUERADE
 			fi
 		fi
 		if [ "${2}" = "start" ] || [ "${2}" = "reconnect" ]; then
 			if [ "${GUEST_PORT}x" != "nullx" ]; then
-				/sbin/iptables -I FORWARD -o virbr0 -d $GUEST_IP -p tcp --dport $GUEST_PORT -j ACCEPT
-				/sbin/iptables -t nat -I PREROUTING -p tcp -d $EXTIP --dport $HOST_PORT -j DNAT --to $GUEST_IP:$GUEST_PORT
+				/sbin/iptables -I FORWARD -o virbr0 -d ${GUEST_IP} -p ${PROTOCOL} --dport ${GUEST_PORT} -j ACCEPT
+				/sbin/iptables -t nat -I PREROUTING -p ${PROTOCOL} -d ${EXTIP} --dport ${HOST_PORT} -j DNAT --to ${GUEST_IP}:{$GUEST_PORT}
 			else 
-				/sbin/iptables -I FORWARD -o virbr0 -d $GUEST_IP -p tcp --dport $HOST_PORT -j ACCEPT
-				/sbin/iptables -t nat -I PREROUTING -p tcp -d $EXTIP --dport $HOST_PORT -j DNAT --to $GUEST_IP
-				/sbin/iptables -t nat -I POSTROUTING -s $INT_NET -d $GUEST_IP -p tcp --dport $HOST_PORT -j MASQUERADE
+				/sbin/iptables -I FORWARD -o virbr0 -d ${GUEST_IP} -p ${PROTOCOL} --dport ${HOST_PORT} -j ACCEPT
+				/sbin/iptables -t nat -I PREROUTING -p ${PROTOCOL} -d ${EXTIP} --dport ${HOST_PORT} -j DNAT --to ${GUEST_IP}
+				/sbin/iptables -t nat -I POSTROUTING -s ${INT_NET} -d ${GUEST_IP} -p ${PROTOCOL} --dport ${HOST_PORT} -j MASQUERADE
 			fi
 		fi
 	done
