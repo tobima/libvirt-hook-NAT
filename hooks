@@ -25,7 +25,7 @@ if [ $? -eq 0 ]; then
 		if [ "${2}" = "start" ] || [ "${2}" = "reconnect" ]; then
 			if [ "${GUEST_PORT}x" != "nullx" ]; then
 				/sbin/iptables -I FORWARD -o virbr0 -d ${GUEST_IP} -p ${PROTOCOL} --dport ${GUEST_PORT} -j ACCEPT
-				/sbin/iptables -t nat -I PREROUTING -p ${PROTOCOL} -d ${EXTIP} --dport ${HOST_PORT} -j DNAT --to ${GUEST_IP}:{$GUEST_PORT}
+				/sbin/iptables -t nat -I PREROUTING -p ${PROTOCOL} -d ${EXTIP} --dport ${HOST_PORT} -j DNAT --to ${GUEST_IP}:${GUEST_PORT}
 			else 
 				/sbin/iptables -I FORWARD -o virbr0 -d ${GUEST_IP} -p ${PROTOCOL} --dport ${HOST_PORT} -j ACCEPT
 				/sbin/iptables -t nat -I PREROUTING -p ${PROTOCOL} -d ${EXTIP} --dport ${HOST_PORT} -j DNAT --to ${GUEST_IP}
