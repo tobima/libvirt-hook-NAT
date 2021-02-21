@@ -8,6 +8,17 @@ INT_NET=$(jq -cre '."net-LAN"' ${RULES_JSON})
 rules=$(jq -ce '."forward-rules"[] | select(."vm-name"=="'${1}'")' ${RULES_JSON})
 if [ $? -eq 0 ]; then
 	GUEST_IP=$(echo "${rules}" | jq -r '.ip')
+	GUEST_EXTIP=$(echo "${rules}" | jq -r '.extip')
+	# If 'extip' is set route **all** traffic for this external ip to the specified internal ip.
+	if [ "$GUEST_EXTIP" != "" ]; then
+		if  [ "${2}" = "stopped" ] || [ "${2}" = "reconnect" ]; then
+			/sbin/iptables -D FORWARD -o virbr0 -p tcp -d ${GUEST_IP} -j ACCEPT
+			/sbin/iptables -t nat -D PREROUTING -p tcp -d ${GUEST_EXTIP} -j DNAT --to ${GUEST_IP}
+		fi
+		if [ "${2}" = "start" ] || [ "${2}" = "reconnect" ]; then
+			/sbin/iptables -I FORWARD 1 -o virbr0 -p tcp -d ${GUEST_IP} -j ACCEPT
+			/sbin/iptables -t nat -I PREROUTING 1 -p tcp -d ${GUEST_EXTIP} -j DNAT --to ${GUEST_IP}
+		fi
 	for mapping in $(echo "${rules}" | jq -c '."port-mappings"[]'); do
 		GUEST_PORT=$(echo "${mapping}" | jq -r '."destination-port"')
 		HOST_PORT=$(echo "${mapping}" | jq -r '."source-port"')
