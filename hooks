@@ -19,6 +19,7 @@ if [ $? -eq 0 ]; then
 			/sbin/iptables -I FORWARD 1 -o virbr0 -p tcp -d ${GUEST_IP} -j ACCEPT
 			/sbin/iptables -t nat -I PREROUTING 1 -p tcp -d ${GUEST_EXTIP} -j DNAT --to ${GUEST_IP}
 		fi
+	fi
 	for mapping in $(echo "${rules}" | jq -c '."port-mappings"[]'); do
 		GUEST_PORT=$(echo "${mapping}" | jq -r '."destination-port"')
 		HOST_PORT=$(echo "${mapping}" | jq -r '."source-port"')
